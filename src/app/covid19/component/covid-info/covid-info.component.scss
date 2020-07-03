@@ -1,0 +1,17 @@
+.chartContainer{
+    position: relative;
+    padding: 10px 30px;
+    height: 60vh;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.infoSection {
+    display: flex;
+    justify-content: space-between;
+    font-size: 22px;
+    & span {
+        font-weight: 700;
+    }
+    margin: 30px 0;
+}
