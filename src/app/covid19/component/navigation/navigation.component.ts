@@ -1,5 +1,4 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import {MegaMenuItem} from 'primeng/api';
 
 @Component({
   selector: 'app-navigation',
@@ -9,7 +8,6 @@ import {MegaMenuItem} from 'primeng/api';
 export class NavigationComponent implements OnInit {
 
   constructor() { }
-  items: MegaMenuItem[];
   clickedState: string = null;
   states: ['Delhi', 'Maharastra'];
   @Output() cureentState = new EventEmitter<string>();
