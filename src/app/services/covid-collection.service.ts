@@ -18,6 +18,11 @@ export class CovidCollectionService {
     const covidCasesUrl: string = this.dataSource;
     return this.httpClient.get(covidCasesUrl, {responseType: "json" });
   }
+  // get label from number API
+  public getLableAsTooltip(number: Number): Observable<any> {
+    const numberAPIUrl: string = this.numberAPI + `/${number}`;
+    return this.httpClient.get(numberAPIUrl, { responseType: 'text' });
+  }
 
   
 }
