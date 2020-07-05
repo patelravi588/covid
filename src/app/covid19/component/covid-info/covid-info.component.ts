@@ -10,7 +10,7 @@ import { CovidType } from 'src/app/models/covid-type';
 })
 export class CovidInfoComponent implements OnInit {
   public categoraziedCovidReport: CovidType;
-  public summury = {}; // using reduce function
+  public summury = { activeCase : 0, confirmedCases: 0}; // using reduce function
   getClickedState: string = "Delhi";
 
   constructor( private covidCollection: CovidCollectionService) { }
@@ -19,33 +19,41 @@ export class CovidInfoComponent implements OnInit {
    this. getCovidRecord();
   }
   getCovidRecord() {
+    this.categoraziedCovidReport = {
+      date: [], 
+      activeCases: [], 
+      confirmedCases: [],
+      activeLabelAsToolTip: [],
+      confirmedLabelAsToolTip: []
+    };
+    var activetooltipItem: any;
+    var confirmedTooltipItem: any;
       // collect covid data from api
       this.covidCollection.getCovidRecord().subscribe((res: any) => {
-      let covidReport: any;
-      this.categoraziedCovidReport = {
-        date: [], 
-        activeCases: [], 
-        confirmedCases: []
-      };
       let response: any = res;
-      if(response){ // debugger;
-        let length = response.cases_time_series.length - 7; // -7 to get last week info
+      if(response){
+        let length = response.cases_time_series.length - 7; // -7 to get one week info
         let covidReport = response.cases_time_series.slice(length, response.cases_time_series.length);
         // covidReport.map((data) => {
         //   this.categoraziedCovidReport.date.push(data.date);
         // });
-
-        console.log(covidReport);
         if(this.getClickedState === "Maharashtra") {
-          covidReport = response.cases_time_series.slice(50, 57);
+          covidReport = response.cases_time_series.slice(90, 97);
         }
-        // rxJS map operator here, it is return new array 
+        // rxJS map operator here, this return new array 
         covidReport.map((data: any) => {
           this.categoraziedCovidReport.date.length < 7 ? this.categoraziedCovidReport.date.push(data.date):'';
-          this.categoraziedCovidReport.activeCases.push(data.dailyconfirmed);
-          this.categoraziedCovidReport.confirmedCases.push(data.totalconfirmed);
+          this.categoraziedCovidReport.activeCases.push(parseInt(data.dailyconfirmed)-parseInt(data.dailyrecovered));
+          this.categoraziedCovidReport.confirmedCases.push(parseInt(data.dailyconfirmed));
         });
-        // console.log(this.categoraziedCovidReport);
+        activetooltipItem = this.categoraziedCovidReport.activeCases; 
+        confirmedTooltipItem = this.categoraziedCovidReport.confirmedCases; 
+
+        this.getActiveLableAsTooltip(activetooltipItem); 
+        this.getConfirmedLableAsTooltip(confirmedTooltipItem);
+
+        this.summury.activeCase = this.categoraziedCovidReport.activeCases.reduce((a,b) => a+b);
+        this.summury.confirmedCases = this.categoraziedCovidReport.confirmedCases.reduce((a,b) => a+b);
         this.drawChart();
       }
     },
@@ -62,7 +70,6 @@ export class CovidInfoComponent implements OnInit {
       labels: labelX,
       datasets: [
         {
-          label: 'COVID Patient information',
           yAxisID: 'primaryXS',
           data: this.categoraziedCovidReport.activeCases, 
           fill: false,
@@ -71,7 +78,6 @@ export class CovidInfoComponent implements OnInit {
           borderWidth: 1
       },
       {
-        label: 'COVID Patient information',
         yAxisID: 'secondaryXS',
         data: this.categoraziedCovidReport.confirmedCases, 
         fill: false,
@@ -88,6 +94,13 @@ export class CovidInfoComponent implements OnInit {
           fontColor: 'rgb(255, 99, 132)',
           fontSize: 30,
           padding: 30
+        }
+      },
+      tooltips: { 
+        callbacks: {
+          label: (tooltipItem, data) => {
+            return this.showLabel(tooltipItem);
+          }
         }
       },
       responsive: true,
@@ -128,6 +141,27 @@ export class CovidInfoComponent implements OnInit {
 
   receivedState($event){
     this.getClickedState  = $event;
-    this.getCovidRecord();
+    this.getCovidRecord(); 
   }
+   /* call number api to get custom label on data points in chart */
+   getActiveLableAsTooltip(activetooltipItem): void {
+    this.covidCollection.getLableAsTooltip(activetooltipItem).subscribe((res) => {
+      this.categoraziedCovidReport.activeLabelAsToolTip = JSON.parse(res);
+    });
+  }
+
+  /* call number api to get custom label on data points in chart */
+  getConfirmedLableAsTooltip(confirmedTooltipItem): void { 
+  this.covidCollection.getLableAsTooltip(confirmedTooltipItem).subscribe((res) => {
+   this.categoraziedCovidReport.confirmedLabelAsToolTip = JSON.parse(res);
+  });
+}
+
+showLabel(tooltipItem){ //debugger;
+  let label: any;
+  let tooltipValues ={};
+  tooltipValues = {...this.categoraziedCovidReport.activeLabelAsToolTip, ...this.categoraziedCovidReport.confirmedLabelAsToolTip}
+  return tooltipValues[tooltipItem.value];
+}
+  
 }

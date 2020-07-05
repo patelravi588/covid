@@ -1,8 +1,8 @@
 <app-navigation (cureentState)="receivedState($event)"></app-navigation>
   <div class="chartContainer">
     <div class="infoSection">
-      <div id="legend">Confirmed Cases : <span>1234</span></div>
-      <div id="legend">Active Cases : <span>1234</span></div>
+      <div id="legend">Confirmed Cases : <span>{{ summury.confirmedCases }}</span></div>
+      <div id="legend">Active Cases : <span>{{ summury.activeCase }}</span></div>
     </div>
     <!-- <div id="legend">{{ getClickedState }}</div> -->
     <canvas id="covidChart" aria-label="Hello ARIA World" role="img"></canvas>
