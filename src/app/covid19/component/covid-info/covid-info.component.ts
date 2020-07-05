@@ -10,7 +10,7 @@ import { CovidType } from 'src/app/models/covid-type';
 })
 export class CovidInfoComponent implements OnInit {
   public categoraziedCovidReport: CovidType;
-  public summury = {};
+  public summury = {}; // using reduce function
   getClickedState: string = "Delhi";
 
   constructor( private covidCollection: CovidCollectionService) { }
